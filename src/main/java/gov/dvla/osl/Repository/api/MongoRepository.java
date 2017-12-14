@@ -17,11 +17,11 @@ import com.mongodb.client.model.Updates;
 import gov.dvla.osl.Repository.api.domain.IEntity;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.eq;
 
 public abstract class MongoRepository <TEntity extends IEntity, TKey> extends AbstractRepository<TEntity, TKey> {
 
@@ -72,17 +72,22 @@ public abstract class MongoRepository <TEntity extends IEntity, TKey> extends Ab
     }
 
     @Override
-    public List<IEntity> update(IEntity entity) throws JsonProcessingException {
+    public List<IEntity> update(IEntity entity) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
+        Bson searchCriteria = new BasicDBObject("_id", entity.get_id());
+        entity.set_id(null);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String json = mapper.writeValueAsString(entity);
 
         IEntity ref = entity;
+        //entity.set_id(null);
 
         Document document = Document.parse(json);
         Bson updateOperation = new Document("$set", document);
-        String test = entity.get_id().toString();
-        Bson searchCriteria = new BasicDBObject("_id", entity.get_id());
+
+        // Bson searchCriteria = new BasicDBObject("_id", new ObjectId("5a329f55995ef1418ed19e85"));
+        // "5a329f55995ef1418ed19e85"
 
         collection.updateOne(searchCriteria, updateOperation);
 
@@ -91,7 +96,7 @@ public abstract class MongoRepository <TEntity extends IEntity, TKey> extends Ab
     }
 
     @Override
-    public List<IEntity> add(IEntity entity) throws JsonProcessingException {
+    public List<IEntity> add(IEntity entity) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String json = mapper.writeValueAsString(entity);
@@ -103,11 +108,11 @@ public abstract class MongoRepository <TEntity extends IEntity, TKey> extends Ab
 
 
     @Override
-    public List<IEntity> findAll() {
+    public List<IEntity> findAll() throws IOException {
         return getCollectionAsList();
     }
 
-    private List<IEntity> getCollectionAsList() {
+    private List<IEntity> getCollectionAsList() throws IOException {
         ObjectMapper mapper = new  ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -122,7 +127,11 @@ public abstract class MongoRepository <TEntity extends IEntity, TKey> extends Ab
             String json = document.toJson();
 
 
-            TEntity entity = gson.fromJson(json, clazz);
+//            TEntity entity = gson.fromJson(json, clazz);
+
+            IEntity entity = mapper.readValue(json, clazz);
+
+
             entityList.add(entity);
         }
         return entityList;

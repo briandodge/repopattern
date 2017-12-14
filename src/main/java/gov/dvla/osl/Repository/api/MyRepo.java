@@ -5,6 +5,7 @@ import com.mongodb.MongoClient;
 import gov.dvla.osl.Repository.api.domain.Driver;
 import gov.dvla.osl.Repository.api.domain.IEntity;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MyRepo extends MongoRepository<Driver, String> {
@@ -21,12 +22,12 @@ public class MyRepo extends MongoRepository<Driver, String> {
     }
 
     @Override
-    public List<IEntity> update(IEntity driver) throws JsonProcessingException {
+    public List<IEntity> update(IEntity driver) throws IOException {
         return super.update(driver);
     }
 
     @Override
-    public List<IEntity> add(IEntity driver) throws JsonProcessingException {
+    public List<IEntity> add(IEntity driver) throws IOException {
         return super.add(driver);
     }
 
@@ -41,7 +42,7 @@ public class MyRepo extends MongoRepository<Driver, String> {
     }
 
     @Override
-    public List<IEntity> findAll() {
+    public List<IEntity> findAll() throws IOException {
         return super.findAll();
     }
 }

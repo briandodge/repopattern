@@ -3,10 +3,12 @@ package gov.dvla.osl.Repository.api.domain;
 
 import org.bson.types.ObjectId;
 
+import java.util.UUID;
+
 public abstract class Entity implements IEntity {
 
-
     private ObjectId _id;
+    private UUID id;
 
     public Entity() {    }
 
